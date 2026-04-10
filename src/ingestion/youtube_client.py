@@ -1,10 +1,17 @@
 """YouTube API client for fetching video metadata and transcripts."""
 
+import logging
 import os
 from datetime import datetime
 
 from googleapiclient.discovery import build
 from youtube_transcript_api import YouTubeTranscriptApi
+from youtube_transcript_api._errors import (
+    TranscriptsDisabled,
+    NoTranscriptFound,
+)
+
+logger = logging.getLogger(__name__)
 
 
 # Channel IDs for seed podcasts
@@ -120,8 +127,12 @@ def get_video_transcript(video_id: str) -> list[dict] | None:
             {"text": s.text, "start": s.start, "duration": s.duration}
             for s in transcript.snippets
         ]
-    except Exception:
+    except (TranscriptsDisabled, NoTranscriptFound):
+        logger.info("Video %s: no transcript available", video_id)
         return None
+    except Exception as e:
+        logger.error("Video %s: unexpected transcript error: %s", video_id, e)
+        raise
 
 
 def transcript_to_text(segments: list[dict]) -> str:

@@ -10,10 +10,15 @@ MODEL_NAME = "all-MiniLM-L6-v2"
 EMBEDDING_DIM = 384
 CHUNK_SIZE = 500  # characters per embedding chunk (smaller than extraction chunks)
 
+_model = None
+
 
 def get_model():
-    """Load the sentence-transformers model (cached after first call)."""
-    return SentenceTransformer(MODEL_NAME)
+    """Load the sentence-transformers model (singleton — avoids reloading per call)."""
+    global _model
+    if _model is None:
+        _model = SentenceTransformer(MODEL_NAME)
+    return _model
 
 
 def chunk_for_embedding(transcript_text: str, chunk_size: int = CHUNK_SIZE) -> list[dict]:

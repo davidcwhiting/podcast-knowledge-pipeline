@@ -4,7 +4,7 @@ import tiktoken
 
 
 def count_tokens(text: str, model: str = "cl100k_base") -> int:
-    """Count tokens in text using tiktoken."""
+    """Count tokens using tiktoken (cl100k_base). Approximation — Claude uses a different tokenizer but counts are close enough for chunking."""
     enc = tiktoken.get_encoding(model)
     return len(enc.encode(text))
 

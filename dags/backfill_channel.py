@@ -36,6 +36,7 @@ default_args = {
 
 def backfill(channel_name: str, max_videos: int = 200, **kwargs):
     """Backfill all videos for a channel (no watermark — fetches from the beginning)."""
+    max_videos = int(max_videos)  # Jinja renders params as strings
     if channel_name not in CHANNELS:
         raise ValueError(
             f"Unknown channel: {channel_name}. "

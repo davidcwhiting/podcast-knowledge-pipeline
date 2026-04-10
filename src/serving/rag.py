@@ -105,7 +105,7 @@ Reply with just the word STRUCTURED or CONTENT, nothing else.""",
 
 
 def rag_query(question: str, top_k: int = 5) -> dict:
-    """Answer a question using hybrid RAG.
+    """Answer a question using hybrid RAG. Handles errors gracefully.
 
     1. Classify question as structured vs content
     2. For structured: query BigQuery marts
@@ -113,11 +113,23 @@ def rag_query(question: str, top_k: int = 5) -> dict:
     4. Send context + question to Claude
     5. Return answer with source info
     """
+    try:
+        return _rag_query_inner(question, top_k)
+    except anthropic.RateLimitError:
+        return {"answer": "The service is temporarily rate-limited. Please try again in a few seconds.", "sources": []}
+    except anthropic.AuthenticationError:
+        return {"answer": "Service configuration error. Please check API credentials.", "sources": []}
+    except Exception as e:
+        logging.getLogger(__name__).error("RAG query failed: %s", e, exc_info=True)
+        return {"answer": "An error occurred while processing your question. Please try again.", "sources": []}
+
+
+def _rag_query_inner(question: str, top_k: int = 5) -> dict:
+    """Internal RAG logic — called by rag_query with error handling."""
     # Try structured approach first
     structured_context = _get_structured_context(question)
 
     if structured_context:
-        # Answer from structured data
         client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
         response = client.messages.create(
             model="claude-haiku-4-5-20251001",

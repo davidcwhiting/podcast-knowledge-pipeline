@@ -77,8 +77,12 @@ def extract_from_chunk(
                 logger.warning("Parse error on attempt %d/%d: %s", attempt + 1, MAX_RETRIES, e)
                 time.sleep(RETRY_DELAY_SECONDS)
             else:
-                logger.error("Failed to parse extraction after %d attempts", MAX_RETRIES)
-                return _empty_extraction()
+                logger.error(
+                    "Failed to parse extraction after %d attempts. Last response: %s",
+                    MAX_RETRIES,
+                    response_text[:500] if "response_text" in dir() else "<no response>",
+                )
+                raise RuntimeError(f"Extraction parse failed after {MAX_RETRIES} attempts")
 
     return _empty_extraction()
 

@@ -60,58 +60,56 @@ def load_embeddings(
 ):
     """Load embedded chunks into pgvector. Replaces existing embeddings for the video."""
     conn = get_connection()
-    cur = conn.cursor()
-
-    # Delete existing embeddings for this video (idempotent)
-    cur.execute("DELETE FROM transcript_embeddings WHERE video_id = %s", (video_id,))
-
-    # Insert new embeddings
-    for chunk in chunks:
-        cur.execute(
-            """INSERT INTO transcript_embeddings
-            (video_id, chunk_index, chunk_text, embedding, channel_name, episode_title)
-            VALUES (%s, %s, %s, %s, %s, %s)""",
-            (
-                video_id,
-                chunk["chunk_index"],
-                chunk["text"],
-                chunk["embedding"],
-                channel_name,
-                episode_title,
-            ),
-        )
-
-    conn.commit()
-    cur.close()
-    conn.close()
-    logger.info("Loaded %d embeddings for video %s", len(chunks), video_id)
+    try:
+        with conn.cursor() as cur:
+            cur.execute("DELETE FROM transcript_embeddings WHERE video_id = %s", (video_id,))
+            for chunk in chunks:
+                cur.execute(
+                    """INSERT INTO transcript_embeddings
+                    (video_id, chunk_index, chunk_text, embedding, channel_name, episode_title)
+                    VALUES (%s, %s, %s, %s, %s, %s)""",
+                    (
+                        video_id,
+                        chunk["chunk_index"],
+                        chunk["text"],
+                        chunk["embedding"],
+                        channel_name,
+                        episode_title,
+                    ),
+                )
+        conn.commit()
+        logger.info("Loaded %d embeddings for video %s", len(chunks), video_id)
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
 
 
 def search_similar(query_embedding: list[float], top_k: int = 5) -> list[dict]:
     """Search for the most similar transcript chunks to a query embedding."""
     conn = get_connection()
-    cur = conn.cursor()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """SELECT video_id, chunk_index, chunk_text, channel_name, episode_title,
+                          1 - (embedding <=> %s::vector) as similarity
+                   FROM transcript_embeddings
+                   ORDER BY embedding <=> %s::vector
+                   LIMIT %s""",
+                (query_embedding, query_embedding, top_k),
+            )
 
-    cur.execute(
-        """SELECT video_id, chunk_index, chunk_text, channel_name, episode_title,
-                  1 - (embedding <=> %s::vector) as similarity
-           FROM transcript_embeddings
-           ORDER BY embedding <=> %s::vector
-           LIMIT %s""",
-        (query_embedding, query_embedding, top_k),
-    )
-
-    results = []
-    for row in cur.fetchall():
-        results.append({
-            "video_id": row[0],
-            "chunk_index": row[1],
-            "chunk_text": row[2],
-            "channel_name": row[3],
-            "episode_title": row[4],
-            "similarity": float(row[5]),
-        })
-
-    cur.close()
-    conn.close()
-    return results
+            results = []
+            for row in cur.fetchall():
+                results.append({
+                    "video_id": row[0],
+                    "chunk_index": row[1],
+                    "chunk_text": row[2],
+                    "channel_name": row[3],
+                    "episode_title": row[4],
+                    "similarity": float(row[5]),
+                })
+        return results
+    finally:
+        conn.close()

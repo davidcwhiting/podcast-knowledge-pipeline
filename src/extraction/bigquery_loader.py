@@ -2,7 +2,7 @@
 
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 
 from google.cloud import bigquery
 
@@ -78,7 +78,7 @@ def load_extraction(merged: dict):
     client = get_bq_client()
     dataset_ref = get_dataset_ref()
     video_id = merged["video_id"]
-    now = datetime.utcnow().isoformat()
+    now = datetime.now(timezone.utc).isoformat()
 
     # Delete existing extraction data for this video (idempotent reload)
     for table_name in ["raw_guests", "raw_topics", "raw_claims", "raw_tools_products", "raw_recommendations"]:

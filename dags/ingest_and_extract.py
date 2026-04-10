@@ -166,9 +166,6 @@ with DAG(
         python_callable=extract_new_episodes,
     )
 
-    # Ingestion tasks run in parallel, then extraction runs after all complete
-    ingest_tasks >> extract_task
-
     dbt_run = BashOperator(
         task_id="dbt_run",
         bash_command=(

@@ -3,7 +3,7 @@
 import os
 from typing import Optional
 
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, HTTPException, Query
 from google.cloud import bigquery
 from pydantic import BaseModel
 
@@ -72,7 +72,7 @@ def get_episode(video_id: str):
     )
     episode = next(iter(client.query(q, job_config=cfg).result()), None)
     if not episode:
-        return {"error": "Episode not found"}
+        raise HTTPException(status_code=404, detail="Episode not found")
 
     # Claims
     q = f"SELECT claim_text, speaker, topic, claim_type FROM `{ds}.fact_claims` WHERE video_id = @vid"
