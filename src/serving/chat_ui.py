@@ -9,7 +9,7 @@ API_URL = os.environ.get("API_URL", "http://api:8000")
 
 st.set_page_config(page_title="Podcast Knowledge Chat", page_icon="🎙️", layout="wide")
 st.title("🎙️ Podcast Knowledge Chat")
-st.caption("Ask questions about content from Joe Rogan, Huberman Lab, Shawn Ryan Show, and Lex Fridman")
+st.caption("Ask questions about content from Joe Rogan, Huberman Lab, and Lex Fridman")
 
 # Initialize chat history
 if "messages" not in st.session_state:

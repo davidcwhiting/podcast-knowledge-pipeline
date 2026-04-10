@@ -36,7 +36,7 @@ A running log of architectural decisions, tradeoffs, and lessons learned. Writte
 **Date:** 2026-04-10
 
 ### What was built
-- YouTube API client fetching video metadata and transcripts from 4 channels (Joe Rogan, Huberman Lab, Shawn Ryan Show, Lex Fridman)
+- YouTube API client fetching video metadata and transcripts from 3 channels (Joe Rogan, Huberman Lab, Lex Fridman)
 - GCS writer storing raw JSON (metadata + full transcript) per video
 - BigQuery loader with MERGE-based upserts for idempotent staging
 - Incremental loading using high watermark (most recent publish date per channel)
@@ -184,7 +184,7 @@ A running log of architectural decisions, tradeoffs, and lessons learned. Writte
 - Resume bullet points prepared
 
 ### What I learned
-- Some YouTube channels (Shawn Ryan Show) have transcripts disabled — the pipeline correctly handles this by recording the metadata and marking `has_transcript = false`, so it doesn't retry endlessly.
+- Some YouTube channels have transcripts disabled — the pipeline correctly handles this by recording the metadata and marking `has_transcript = false`, so it doesn't retry endlessly.
 - BigQuery's streaming buffer prevents DELETE on recently inserted rows. In production, you'd either wait 90 minutes or use table-level operations (TRUNCATE + INSERT) instead of row-level DELETE for idempotent loads.
 - Joe Rogan episodes are consistently 3-4 hours long (5,000+ transcript segments each). The pipeline handles these without issue thanks to chunking.
 

@@ -18,7 +18,6 @@ logger = logging.getLogger(__name__)
 CHANNELS = {
     "joe_rogan": "UCzQUP1qoWDoEbmsQxvdjxgQ",
     "huberman_lab": "UC2D2CMWXMOVWx7giW1n3LIg",
-    "shawn_ryan": "UCkoujZQZatbqy4KGcgjpVxQ",
     "lex_fridman": "UCSHZKyawb77ixDdsGog4iWA",
 }
 

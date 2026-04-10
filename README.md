@@ -33,8 +33,6 @@ YouTube API ──► Airflow DAG ──► GCS (raw JSON)
 - Huberman Lab (Andrew Huberman)
 - Lex Fridman Podcast
 
-*(Shawn Ryan Show configured but transcripts unavailable via YouTube's caption API)*
-
 ### Extracted Entities
 | Entity | Description |
 |--------|-------------|
