@@ -1,0 +1,17 @@
+name: podcast_pipeline
+version: '1.0.0'
+
+profile: podcast_pipeline
+
+model-paths: ["staging", "intermediate", "marts"]
+test-paths: ["tests"]
+clean-targets: ["target", "dbt_packages"]
+
+models:
+  podcast_pipeline:
+    staging:
+      +materialized: view
+    intermediate:
+      +materialized: view
+    marts:
+      +materialized: table

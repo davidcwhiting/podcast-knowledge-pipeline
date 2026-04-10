@@ -1,0 +1,49 @@
+version: 2
+
+models:
+  - name: dim_channels
+    columns:
+      - name: channel_id
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_episodes
+    columns:
+      - name: video_id
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_guests
+    columns:
+      - name: guest_id
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_topics
+    columns:
+      - name: topic_id
+        tests:
+          - unique
+          - not_null
+
+  - name: fact_claims
+    columns:
+      - name: claim_id
+        tests:
+          - not_null
+      - name: video_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_episodes')
+              field: video_id
+
+  - name: mart_recommendations
+    columns:
+      - name: recommendation_id
+        tests:
+          - unique
+          - not_null

@@ -1,0 +1,21 @@
+version: 2
+
+sources:
+  - name: podcast_pipeline
+    database: "{{ env_var('GCP_PROJECT_ID') }}"
+    schema: "{{ env_var('BQ_DATASET') }}"
+    tables:
+      - name: stg_videos
+        description: Raw video metadata from YouTube API
+      - name: stg_transcripts
+        description: Raw transcript text from YouTube captions
+      - name: raw_guests
+        description: LLM-extracted guest entities
+      - name: raw_topics
+        description: LLM-extracted topic entities
+      - name: raw_claims
+        description: LLM-extracted claims and insights
+      - name: raw_tools_products
+        description: LLM-extracted tools and products mentioned
+      - name: raw_recommendations
+        description: LLM-extracted recommendations
